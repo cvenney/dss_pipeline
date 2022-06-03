@@ -11,13 +11,5 @@ do
     gunzip -c "$INPUT"/"$(basename $i)".dedup_CpG_merged.bedGraph.gz | 
 		awk -v FS="\t" -v OFS="\t" 'NR {print $1, $2, $3, $4, $5, $6, ($5+$6)}' |
 		awk -v FS="\t" -v OFS="\t" '{ if (4<$7 && 101>$7) {print} } ' |
-#		awk -v FS="\t" -v OFS="\t" '{ if (4<$7) {print} } ' |
-#    gzip -c - > "$OUTPUT"/"$(basename $i)""_SNPsexcluded2_noscaffolds_coveragefiltered.bedGraph.gz"
     gzip -c - > "$OUTPUT"/"$(basename $i)""_quickfiltered.bedGraph.gz"
 done
-
-
-
-
-#awk -v FS="\t" -v OFS="\t" 'NR {print $1, $2, $3, $4, $5, $6, ($5+$6)}' CD17_SNPsexcluded2_noscaffolds_whitelisted.bedGraph > CD17_SNPsexcluded2_noscaffolds_whitelisted_testsum.bedGraph
-#awk -v FS="\t" -v OFS="\t" '{ if (4<$7 && $7<101) {print} } '  CD17_SNPsexcluded2_noscaffolds_whitelisted_testsum.bedGraph > CD17_SNPsexcluded2_noscaffolds_whitelisted_testsum_covfilter.bedGraph

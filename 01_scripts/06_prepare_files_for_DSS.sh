@@ -8,8 +8,7 @@ OUTPUT="07_DSS_input"
 for i in $(ls -1 "$INPUT"/*.bedGraph.gz | cut -d "_" -f4) 
 do
     echo $(basename $i)
-    gunzip -c "$INPUT"/"$(basename $i)"_fully_filtered.bedGraph.gz | 
-#   awk -v FS="\t" -v OFS="\t" 'NR {print $1, $2, $7, $5}' |
+    gunzip -c "$INPUT"/"$(basename $i)"_fully_filtered.bedGraph.gz |
 	  awk -v FS="\t" -v OFS="\t" 'BEGIN{print "chr", "pos", "N", "X"}; NR {print $1, $2, $7, $5}' |
     gzip -c - > "$OUTPUT"/"$(basename $i)"".txt.gz"
 done
