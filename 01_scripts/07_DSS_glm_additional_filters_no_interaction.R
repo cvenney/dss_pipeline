@@ -1,12 +1,12 @@
 #!/usr/bin/env Rscript
 #conda activate R403b
-#srun -c 1 --mem 100G -p medium --time 7-00:00:00 -J 07_DSS -o 07_DSS_%j.log Rscript ./01_scripts/07_DSS_glm.R &
+#srun -c 1 --mem 100G -p medium --time 7-00:00:00 -J 07_DSS -o 07_DSS_%j.log Rscript ./01_scripts/07_DSS_glm_additional_filters_no_interaction.R &
 # currenty written for 2 main terms and one interaction term!
 
 ### GLM MODEL SPECIFICATIONS
 metadata="99_sample_info/hugo_capelin_sample_metadata.txt"
-model_formula=as.formula("~habitat + continent + habitat:continent")
-output_prefix="DSS_results"
+model_formula=as.formula("~habitat + continent")
+output_prefix="DSS_results_nointeraction"
 p_val=0.001
 min_len=200
 min_CGs=10
@@ -45,12 +45,10 @@ DMLfit = DMLfit.multiFactor(BSobj, design=vars, formula=model_formula)
 colnames(DMLfit$X)
 one <- colnames(DMLfit$X)[2]
 two <- colnames(DMLfit$X)[3]
-three <- colnames(DMLfit$X)[4]
 
 
 DMLtest.t1 = DMLtest.multiFactor(DMLfit, coef=one)
 DMLtest.t2 = DMLtest.multiFactor(DMLfit, coef=two)
-DMLtest.t3 = DMLtest.multiFactor(DMLfit, coef=three)
 
 # if you want to sort DMLs
 #ix=sort(DMLtest.ecotype[,"pvals"], index.return=TRUE)$ix
@@ -67,9 +65,6 @@ fwrite(sig_DMLs_1, file=paste0("08_DSS_results/", output_prefix, "_", colnames(D
 sig_DMLs_2 <- DMLtest.t2[which(DMLtest.t2$fdrs < p_val),]
 fwrite(sig_DMLs_2, file=paste0("08_DSS_results/", output_prefix, "_", colnames(DMLfit$X)[3], "_DMLs_FDR", p_val, ".txt"), sep="\t", quote=FALSE)
 
-sig_DMLs_3 <- DMLtest.t3[which(DMLtest.t3$fdrs < p_val),]
-fwrite(sig_DMLs_3, file=paste0("08_DSS_results/", output_prefix, "_", colnames(DMLfit$X)[4], "_DMLs_FDR", p_val, ".txt"), sep="\t", quote=FALSE)
-
 
 print(paste("Calling DMRs."))
 DMRtest_1 = callDMR(DMLtest.t1, p.threshold=p_val, minlen=min_len, minCG=min_CGs, dis.merge=merge_distance, pct.sig=pct_sig_CGs)
@@ -77,9 +72,6 @@ write.table(DMRtest_1, file=paste0("08_DSS_results/", output_prefix, "_", colnam
 
 DMRtest_2 = callDMR(DMLtest.t2, p.threshold=p_val, minlen=min_len, minCG=min_CGs, dis.merge=merge_distance, pct.sig=pct_sig_CGs)
 write.table(DMRtest_2, file=paste0("08_DSS_results/", output_prefix, "_", colnames(DMLfit$X)[3], "_DMRs_p", p_val, "_", min_CGs, "minCGs_", merge_distance, "bpmerge_", pct_sig_CGs, "pctsigCGs.txt"), sep="\t", quote=FALSE)
-
-DMRtest_3 = callDMR(DMLtest.t3, p.threshold=p_val, minlen=min_len, minCG=min_CGs, dis.merge=merge_distance, pct.sig=pct_sig_CGs)
-write.table(DMRtest_3, file=paste0("08_DSS_results/", output_prefix, "_", colnames(DMLfit$X)[4], "_DMRs_p", p_val, "_", min_CGs, "minCGs_", merge_distance, "bpmerge_", pct_sig_CGs, "pctsigCGs.txt"), sep="\t", quote=FALSE)
 
 
 print(paste("Getting heatmap beta values."))
@@ -94,9 +86,3 @@ betas_2 <- cbind(DMRtest_2[,1:3], DMRegions_2)
 rownames(betas_2)<-NULL
 betas_2 <- betas_2 %>% mutate_all(~ifelse(is.nan(.), NA, .))
 write.table(betas_2, file=paste0("08_DSS_results/", output_prefix, "_", colnames(DMLfit$X)[3], "_DMRs_p", p_val, "_minlen", min_len, "_", min_CGs, "minCGs_", merge_distance, "bpmerge_", pct_sig_CGs, "pctsigCGs_heatmapbetas.txt"), sep="\t", quote=FALSE, row.names=FALSE)
-
-DMRegions_3 <- getMeth(BSobj, DMRtest_3, type="raw", what="perRegion")
-betas_3 <- cbind(DMRtest_3[,1:3], DMRegions_3)
-rownames(betas_3)<-NULL
-betas_3 <- betas_3 %>% mutate_all(~ifelse(is.nan(.), NA, .))
-write.table(betas_3, file=paste0("08_DSS_results/", output_prefix, "_", colnames(DMLfit$X)[4], "_DMRs_p", p_val, "_minlen", min_len, "_", min_CGs, "minCGs_", merge_distance, "bpmerge_", pct_sig_CGs, "pctsigCGs_heatmapbetas.txt"), sep="\t", quote=FALSE, row.names=FALSE)
