@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 #conda activate R403b
-#usage: Rscript ./01_scripts/make_CpG_blacklist_cov_across_individuals.R 4 sample_info/cliff_dwarf.txt sample_info/cliff_normal.txt 05_coverage_filtered_bedGraphs/03_make_CpG_blacklist_cov_across_individuals.R
 #srun -c 1 --mem 40G -p medium --time 7-00:00:00 -J 04_make_blacklist -o 04_make_blacklist_%j.log Rscript ./01_scripts/04_make_CpG_blacklist_cov_across_individuals.R 11 99_sample_info/hugo_capelin_sample_IDs.txt 05_quick_filtered_bedGraphs/blacklist_max_11_missing.bed &
+
 
 library(data.table)
 library(dplyr)
@@ -11,9 +11,9 @@ max_missing_ind <- as.numeric(argv[1])
 sample_file <- argv[2]
 output <- argv[3]
 
-max_missing_ind <- 11
-sample_file <- "99_sample_info/hugo_capelin_sample_IDs.txt"
-output <- "blacklist_max_11_missing.txt"
+#max_missing_ind <- 11
+#sample_file <- "99_sample_info/hugo_capelin_sample_IDs.txt"
+#output <- "blacklist_max_11_missing.txt"
 
 
 vector_ind<-read.table(sample_file,header=F)[,1]
